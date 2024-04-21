@@ -1,0 +1,42 @@
+import requests
+from bs4 import BeautifulSoup
+
+def get_survey_numbers(district, mandal, village, survey_number):
+    url = "https://dharani.telangana.gov.in/knowLandStatus"
+
+    # Send a POST request with the selected district, mandal, and village
+    data = {
+        "district": district,
+        "mandal": mandal,
+        "village": village,
+        "surveyNo": survey_number  # Include survey number in the request data
+    }
+    response = requests.post(url, data=data)
+
+    if response.status_code == 200:
+        # Parse the HTML content
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # Find the survey numbers in the response
+        survey_numbers = []
+        for option in soup.find_all("option"):
+            survey_number = option.get("value")
+            if survey_number:
+                survey_numbers.append(survey_number)
+
+        return survey_numbers
+    else:
+        print("Failed to fetch data. Status code:", response.status_code)
+        return None
+
+# Example usage
+district = input("Enter district: ")
+mandal = input("Enter mandal: ")
+village = input("Enter village: ")
+survey_number = input("Enter survey number: ")
+
+survey_numbers = get_survey_numbers(district, mandal, village, survey_number)
+if survey_numbers:
+    print("Survey numbers:")
+    for survey_number in survey_numbers:
+        print(survey_number)
